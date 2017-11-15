@@ -1,4 +1,4 @@
-package me.yangtong.udprpc;
+package me.yangtong.udprpc.base;
 
 /**
  * 数据封装及解封装类

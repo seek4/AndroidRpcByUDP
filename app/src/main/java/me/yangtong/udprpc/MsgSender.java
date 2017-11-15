@@ -8,15 +8,15 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import me.yangtong.udprpc.UdpConfiger.UdpAddress;
-import me.yangtong.udprpc.UdpDataFactory.UdpData;
+import me.yangtong.udprpc.base.UdpConfiger.UdpAddress;
+import me.yangtong.udprpc.base.UdpDataFactory.UdpData;
+import me.yangtong.udprpc.client.UdpClient;
 import me.yangtong.udprpc.util.CommUtil;
 import me.yangtong.udprpc.util.LogUtil;
 import me.yangtong.udprpc.util.Runnable1;
 import me.yangtong.udprpc.util.JSONBuilder;
 import me.yangtong.udprpc.util.StringUtils;
 
-import android.app.ActivityManager;
 import android.content.Context;
 import android.os.Environment;
 import android.os.Handler;
@@ -29,13 +29,13 @@ import android.util.Log;
  * @author Terry
  *
  */
-public class TXZUdpClient {
+public class MsgSender {
 
-	private TXZUdpClient(){}
+	private MsgSender(){}
 	
-	private static TXZUdpClient sInstance = new TXZUdpClient();
+	private static MsgSender sInstance = new MsgSender();
 	
-	public static TXZUdpClient getInstance(){
+	public static MsgSender getInstance(){
 		return sInstance;
 	}
 	
@@ -50,7 +50,7 @@ public class TXZUdpClient {
 	private static final String FILE_PORT = Environment.getExternalStorageDirectory()+"/txz/udp_port.txz";
 //	private Map<String, UdpAddress> mMapAddress = new HashMap<String, UdpConfiger.UdpAddress>();
 	private UdpAddress mServerAddr;
-	private static final String TAG = "TXZUdpClient ";
+	private static final String TAG = "MsgSender ";
 	private String mProcessName = "";
 
 	public void init(Context context) {
