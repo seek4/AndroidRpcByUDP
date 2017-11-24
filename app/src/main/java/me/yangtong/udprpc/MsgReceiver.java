@@ -1,5 +1,7 @@
 package me.yangtong.udprpc;
 
+import android.os.Build;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -43,9 +45,10 @@ public class MsgReceiver {
 		if (file.exists()) {
 			file.delete();
 		}
-		String content = "com.txznet.txz = " + hostName + ":" + port + "\n";
+		String content = "server = " + hostName + ":" + port + "\n";
 		FileOutputStream fos = null;
 		try {
+
 			file.createNewFile();
 			fos = new FileOutputStream(file);
 			fos.write(content.getBytes(), 0, content.getBytes().length);

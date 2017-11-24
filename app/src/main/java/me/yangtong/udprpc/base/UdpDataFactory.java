@@ -1,5 +1,7 @@
 package me.yangtong.udprpc.base;
 
+import me.yangtong.udprpc.util.LogUtil;
+
 /**
  * 数据封装及解封装类
  * 
@@ -160,6 +162,8 @@ public class UdpDataFactory {
 		for (int i = 0; i < originalData.length && i < UdpConfiger.getInstance().getUserDataLength(); i++) {
 			bytes[UdpConfiger.getInstance().getReserveDataLength() + i] = originalData[i];
 		}
+		LogUtil.logd("send:");
+		printBytes(bytes);
 		return bytes;
     }
 
@@ -173,6 +177,8 @@ public class UdpDataFactory {
         if (transferData.length < UdpConfiger.getInstance().getReserveDataLength()) {
             throw new RuntimeException("transfer data can't be shorter than reserve length!");
         }
+		LogUtil.logd("receive:");
+		printBytes(transferData);
         UdpData udpData = new UdpData();
         udpData.udpId = transferData[0];
         udpData.invokeType = transferData[1] == 0 ? UdpData.INVOKE_ASYNC : UdpData.INVOKE_SYNC;
@@ -196,6 +202,17 @@ public class UdpDataFactory {
         return udpData;
     }
 
+    private static void printBytes(byte[] bytes){
+		if(bytes==null||bytes.length==0){
+			LogUtil.logd("bytes null");
+			return;
+		}
+		String byteStr="";
+		for (int i = 0; i < bytes.length; i++) {
+			byteStr += "" + bytes[i];
+		}
+		LogUtil.logd("bytes:"+byteStr);
+	}
 
 	private static int byteArrayToInt(byte[] b) {
 		return b[3] & 0xFF | (b[2] & 0xFF) << 8 | (b[1] & 0xFF) << 16 | (b[0] & 0xFF) << 24;
