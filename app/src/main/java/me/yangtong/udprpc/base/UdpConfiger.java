@@ -35,7 +35,7 @@ public class UdpConfiger {
     /**
      * 端口文件
      */
-    public static final String FILE_PORT = Environment.getExternalStorageDirectory()+"/txz/udp_port.txz";
+    public static final String FILE_PORT = Environment.getExternalStorageDirectory()+"/udp_port.txz";
 
     private Integer mPortServer;
     

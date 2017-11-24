@@ -8,6 +8,8 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
+import me.yangtong.udprpc.base.UdpConfiger;
+import me.yangtong.udprpc.base.UdpDataFactory;
 import me.yangtong.udprpc.util.LogUtil;
 
 
@@ -49,7 +51,7 @@ public class UdpServer {
 	}
 	
 	
-	public static void setCmdDispatcher(ICmdDispatcher d) {
+	public void setCmdDispatcher(ICmdDispatcher d) {
 		LogUtil.logd(TAG + "setCmdDispatcher:" + d);
 		mCmdDispatcher = d;
 	}

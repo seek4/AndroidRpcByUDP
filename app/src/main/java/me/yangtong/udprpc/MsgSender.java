@@ -8,6 +8,7 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import me.yangtong.udprpc.base.UdpConfiger;
 import me.yangtong.udprpc.base.UdpConfiger.UdpAddress;
 import me.yangtong.udprpc.base.UdpDataFactory.UdpData;
 import me.yangtong.udprpc.client.UdpClient;
@@ -47,8 +48,6 @@ public class MsgSender {
 	private HandlerThread mThreadSendInvoke;
 	private Handler mHandlerSendInvoke;
 	private static final int INTERVAL_CHECK = 5000;
-	private static final String FILE_PORT = Environment.getExternalStorageDirectory()+"/txz/udp_port.txz";
-//	private Map<String, UdpAddress> mMapAddress = new HashMap<String, UdpConfiger.UdpAddress>();
 	private UdpAddress mServerAddr;
 	private static final String TAG = "MsgSender ";
 	private String mProcessName = "";
@@ -97,73 +96,22 @@ public class MsgSender {
 				mListInvokes.remove(i);
 				continue;
 			}
-			final UdpData udpDataSend = mListInvokes.get(0);
-			// if (udpDataSend.cmd == UdpData.CMD_LOG) {
-			// invokeLog(mUdpId, udpDataSend.data);
-			// }
+			UdpData udpDataSend = mListInvokes.get(0);
 			mClient.sendInvoke(udpDataSend, mServerAddr);
 			mListInvokes.remove(i);
 		}
 	}
 
-//	private int mNextSeq = 0;
-
-//	public void invokeLog(int udpId, byte[] data) {
-//		JSONBuilder jsonDoc = new JSONBuilder(new String(data));
-//		int level = jsonDoc.getVal("level", Integer.class);
-//		String tag = jsonDoc.getVal("tag", String.class);
-//		String content = jsonDoc.getVal("content", String.class);
-//		Integer pid = jsonDoc.getVal("pid", Integer.class, 0);
-//		Long tid = jsonDoc.getVal("tid", Long.class, 0L);
-//		Integer seq = jsonDoc.getVal("seq", Integer.class);
-//		String packageName = jsonDoc.getVal("package", String.class);
-//		if (udpId == 0) {
-//			Log.i("yangtong", TAG+"[" + udpId + "/" + seq + "]" + content + "[by udp]");
-//			return;
-//		}
-//		int nextSeq = mNextSeq;
-//		if (seq > nextSeq) {
-//			Log.i("yangtong", TAG+"error" + (seq - nextSeq) + " logs are missing or in wrong order");
-//			nextSeq = seq < Integer.MAX_VALUE ? seq + 1 : 0;
-//		} else if (seq < nextSeq) {
-//			Log.i("yangtong", TAG+"error" + "this log in wrong order-> nextSeq:" + nextSeq);
-//		} else {
-//			nextSeq = seq < Integer.MAX_VALUE ? seq + 1 : 0;
-//		}
-//		mNextSeq = nextSeq;
-//		Log.i("yangtong", TAG+"sendLog [" + udpId + "/" + seq + "]" + content + "[by udp]");
-//	}
-
-//	/**
-//	 *	按顺序依次到达
-//	 * @return
-//	 */
-//	public int sendNoLostInvoke(int invokeMethod, byte[] data) {
-//		mHandlerSendInvoke.post(new Runnable1<UdpData>(new UdpData(mUdpId, UdpData.INVOKE_SYNC, invokeMethod, data)) {
-//			@Override
-//			public void run() {
-//				mListInvokes.add(mP1);
-//				procQueue();
-//			}
-//		});
-//		return 0;
-//	}
-
-
-	public int sendInvoke(int invokeMethod, byte[] data) {
-		return sendInvoke("",invokeMethod,data);
-	}
-
 	/**
-	 * 
-	 * @param packageName
-	 *            预留，暂时没用，目前只支持C端直接发送到Core
-	 * @param invokeMethod
+	 *
+	 * @param cmd
+	 * 			希望对端执行的cmd
 	 * @param data
+	 * 			发送的数据
 	 * @return
 	 */
-	public int sendInvoke(String packageName, int invokeMethod, byte[] data) {
-		mHandlerSendInvoke.post(new Runnable1<UdpData>(new UdpData(mUdpId, UdpData.INVOKE_ASYNC, invokeMethod, data)) {
+	public int sendInvoke(int cmd, byte[] data) {
+		mHandlerSendInvoke.post(new Runnable1<UdpData>(new UdpData(mUdpId, UdpData.INVOKE_ASYNC, cmd, data)) {
 			@Override
 			public void run() {
 				mListInvokes.add(mP1);
@@ -173,41 +121,16 @@ public class MsgSender {
 		return 0;
 	}
 
-
-	public ServiceData sendInvokeSync(int invokeMethod, byte[] data) {
-		return sendInvokeSync("", invokeMethod, data);
-	}
-
 	/**
 	 * 同步调用接口,注意线程，不要在主线程执行
 	 * 
-	 * @param invokeMethod
+	 * @param cmd
 	 * @param data
 	 * @return
 	 */
-	public ServiceData sendInvokeSync(String packageName, int invokeMethod, byte[] data) {
-		UdpData udpData = mClient.sendInvoke(new UdpData(mUdpId, UdpData.INVOKE_SYNC, invokeMethod, data), mServerAddr);
+	public ServiceData sendInvokeSync(int cmd, byte[] data) {
+		UdpData udpData = mClient.sendInvoke(new UdpData(mUdpId, UdpData.INVOKE_SYNC, cmd, data), mServerAddr);
 		return new ServiceData(udpData.data);
-	}
-	
-	/**
-	 * 
-	 * @param packageName
-	 * @param command
-	 * @param data
-	 * @return
-	 */
-	public byte[] onInvoke(String packageName, String command, byte[] data) {
-		if("comm.udp.initInfo".equals(command)){
-			JSONBuilder jsonBuilder = new JSONBuilder(data);
-			mServerAddr = new UdpAddress("255.255.255.255", jsonBuilder.getVal("port", Integer.class));
-			mUdpId = jsonBuilder.getVal("udpId", Integer.class);
-			// int logSeq = jsonBuilder.getVal("logSeq", Integer.class);
-			// LogUtil.setUdpSeq(logSeq);
-			LogUtil.logd(TAG + "processName:" + mProcessName + ",udpId:" + mUdpId);
-			return null;
-		}
-		return null;
 	}
 	
 	public static class ServiceData {
@@ -281,7 +204,7 @@ public class MsgSender {
 
 	private boolean checkPortFile() {
 		Log.i("yangtong", "udp check port file");
-		File file = new File(FILE_PORT);
+		File file = new File(UdpConfiger.FILE_PORT);
 		if (file.exists()) {
 			try {
 				FileInputStream in = new FileInputStream(file);
@@ -338,8 +261,6 @@ public class MsgSender {
 				JSONBuilder jsonBuilder = new JSONBuilder(resp.data);
 				int udpId = jsonBuilder.getVal("udpId", Integer.class);
 				if (mIsInConnection == false || mUdpId == 0 || udpId != mUdpId) {
-//					int logSeq = jsonBuilder.getVal("logSeq", Integer.class);
-//					LogUtil.setUdpSeq(logSeq);
 					mUdpId = udpId;
 					Log.i("yangtong", "udp in connection udpId:" + mUdpId);
 					mIsInConnection = true;

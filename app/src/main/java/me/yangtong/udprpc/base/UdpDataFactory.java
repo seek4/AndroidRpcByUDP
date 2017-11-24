@@ -55,22 +55,10 @@ public class UdpDataFactory {
 	     * 回复{@link #CMD_CHECK_CONNECTION}
 	     */
 	    public static final int CMD_RESP_CONNECTION = 2;
-	    /**
-	     * 打日志
-	     */
-	    public static final int CMD_LOG = 10;
 		/**
-		 * LOG ACK
+		 * 测试
 		 */
-		public static final int CMD_LOG_ACK = 11;
-	    /**
-	     * 上报数据
-	     */
-	    public static final int CMD_REPORT = 12;
-	    /**
-	     * 立即上报
-	     */
-	    public static final int CMD_REPORT_IMME = 13;
+		public static final int CMD_TEST = 11;
 	}
 
 	// public static byte[] getTransferData(String msg){

@@ -9,7 +9,9 @@ import me.yangtong.udprpc.base.UdpIdManager;
 import me.yangtong.udprpc.server.UdpServer;
 import me.yangtong.udprpc.util.JSONBuilder;
 
-
+/**
+ * Udp server manager
+ */
 public class MsgReceiver {
 
 	private MsgReceiver(){}
@@ -18,13 +20,14 @@ public class MsgReceiver {
 	private static final String TAG = "MsgReceiver ";
 	
 	private UdpServer mServer;
-	
+
 	public static MsgReceiver getInstance(){
 		return sInstance;
 	}
 
-	public void init() {
+	public void init(UdpServer.ICmdDispatcher dispatcher) {
 		mServer = new UdpServer();
+		mServer.setCmdDispatcher(dispatcher);
 		int port = mServer.start();
 		if (port > 0) {
 			writePortFile("127.0.0.1", port);
@@ -32,7 +35,7 @@ public class MsgReceiver {
 	}
 
 	public void setCmdDispatcher(UdpServer.ICmdDispatcher cmdDispatcher) {
-		UdpServer.setCmdDispatcher(cmdDispatcher);
+		mServer.setCmdDispatcher(cmdDispatcher);
 	}
 	
 	private void writePortFile(String hostName, int port) {
@@ -50,7 +53,9 @@ public class MsgReceiver {
 			e.printStackTrace();
 		} finally {
 			try {
-				fos.close();
+				if(fos!=null) {
+					fos.close();
+				}
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -62,7 +67,6 @@ public class MsgReceiver {
 		jsonBuilder.put("port", mServer.getPort());
 		int udpId = UdpIdManager.getInstance().getUdpId(processName);
 		jsonBuilder.put("udpId", udpId);
-//		jsonBuilder.put("logSeq", UdpLogInvoker.getInstance().getSeq(udpId));
 		return jsonBuilder.toBytes();
 	}
 
