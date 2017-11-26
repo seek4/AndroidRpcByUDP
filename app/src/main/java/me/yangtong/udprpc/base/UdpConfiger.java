@@ -23,6 +23,21 @@ public class UdpConfiger {
     public static final String HOST_SERVER = "127.0.0.1";
 
     /**
+     * ACTION the server broadcast port info
+     */
+    public static final String ACTION_HOST_PORT = "udprpc.server.port";
+
+    /**
+     * Extra of port info
+     */
+    public static final String EXTRA_PORT_INFO = "extra.port";
+
+    /**
+     * ACTION the client init
+     */
+    public static final String ACTION_CLIENT_INIT = "udprpc.clien.init";
+
+    /**
      * C端接收数据超时时间
      */
     public static final int TIME_OUT_CLIENT_RECV = 3000;

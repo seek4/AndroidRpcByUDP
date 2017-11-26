@@ -18,7 +18,10 @@ import me.yangtong.udprpc.util.Runnable1;
 import me.yangtong.udprpc.util.JSONBuilder;
 import me.yangtong.udprpc.util.StringUtils;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -52,6 +55,10 @@ public class MsgSender {
 	private static final String TAG = "MsgSender ";
 	private String mProcessName = "";
 
+	/**
+	 *
+	 * @param context use application to avoid memory leak
+	 */
 	public void init(Context context) {
 		mProcessName = CommUtil.getProcessName(context);
 		mThreadCheck = new HandlerThread("udpCheckConnection");
@@ -61,14 +68,42 @@ public class MsgSender {
 		mThreadSendInvoke = new HandlerThread("udpProcess");
 		mThreadSendInvoke.start();
 		mHandlerSendInvoke = new Handler(mThreadSendInvoke.getLooper());
+		IntentFilter intentFilter = new IntentFilter(UdpConfiger.ACTION_HOST_PORT);
+		context.registerReceiver(mServerReceiver,intentFilter);
+		context.sendBroadcast(new Intent(UdpConfiger.ACTION_CLIENT_INIT));
 	}
+
+	/**
+	 * receive port info and other info from server,.
+	 */
+	private BroadcastReceiver mServerReceiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			if (UdpConfiger.ACTION_HOST_PORT.equals(intent.getAction())) {
+				String info = intent.getStringExtra(UdpConfiger.EXTRA_PORT_INFO);
+				LogUtil.logd("receive port info :" + info);
+				if (TextUtils.isEmpty(info)) {
+					return;
+				}
+				String[] tmp1 = info.split("=");
+				if (tmp1.length != 2) {
+					return;
+				}
+				String[] tmp2 = tmp1[1].split(":");
+				mServerAddr = new UdpAddress(StringUtils.replaceBlank(tmp2[0]),
+						Integer.parseInt(StringUtils.replaceBlank(tmp2[1])));
+				// check connection immediately
+				mHandlerCheck.post(mTaskCheckConnection);
+			}
+		}
+	};
 
 
 	private Runnable mTaskCheckConnection = new Runnable() {
 		@Override
 		public void run() {
 			mHandlerCheck.removeCallbacks(mTaskCheckConnection);
-			checkPortFile();
+//			checkPortFile();
 			checkConnection();
 			mHandlerCheck.postDelayed(mTaskCheckConnection, INTERVAL_CHECK);
 		}
@@ -202,44 +237,43 @@ public class MsgSender {
 	}
 
 
-	private boolean checkPortFile() {
-		Log.i("yangtong", "udp check port file");
-		File file = new File(UdpConfiger.FILE_PORT);
-		if (file.exists()) {
-			try {
-				FileInputStream in = new FileInputStream(file);
-				byte[] bs = new byte[(int) file.length()];
-				int t = 0;
-				while (t < bs.length) {
-					int r = in.read(bs, t, bs.length - t);
-					if (r < 0)
-						break;
-					t += r;
-				}
-				in.close();
-				String info = new String(bs);
-				if(TextUtils.isEmpty(info)){
-					return false;
-				}
-				String[] tmp1 = info.split("=");
-				if (tmp1.length != 2) {
-					return false;
-				}
-				String[] tmp2 = tmp1[1].split(":");
-				mServerAddr = new UdpAddress(StringUtils.replaceBlank(tmp2[0]),
-						Integer.parseInt(StringUtils.replaceBlank(tmp2[1])));
-//				mMapAddress.put(tmp1[0].trim(), address);
-				return true;
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		mIsInConnection = false;
-		return false;
-	}
+//	private boolean checkPortFile() {
+//		Log.i("yangtong", "udp check port file");
+//		File file = new File(UdpConfiger.FILE_PORT);
+//		if (file.exists()) {
+//			try {
+//				FileInputStream in = new FileInputStream(file);
+//				byte[] bs = new byte[(int) file.length()];
+//				int t = 0;
+//				while (t < bs.length) {
+//					int r = in.read(bs, t, bs.length - t);
+//					if (r < 0)
+//						break;
+//					t += r;
+//				}
+//				in.close();
+//				String info = new String(bs);
+//				if(TextUtils.isEmpty(info)){
+//					return false;
+//				}
+//				String[] tmp1 = info.split("=");
+//				if (tmp1.length != 2) {
+//					return false;
+//				}
+//				String[] tmp2 = tmp1[1].split(":");
+//				mServerAddr = new UdpAddress(StringUtils.replaceBlank(tmp2[0]),
+//						Integer.parseInt(StringUtils.replaceBlank(tmp2[1])));
+////				mMapAddress.put(tmp1[0].trim(), address);
+//				return true;
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//			}
+//		}
+//		mIsInConnection = false;
+//		return false;
+//	}
 
 	private boolean checkConnection() {
-		Log.i("yangtong", "udp check connection");
 		if (mClient == null) {
 			mClient = new UdpClient();
 			mClient.init();
