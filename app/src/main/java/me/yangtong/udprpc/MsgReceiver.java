@@ -40,7 +40,7 @@ public class MsgReceiver {
      * @param context    use application context to avoid memory leak
      */
     public void init(Context context, UdpServer.ICmdDispatcher dispatcher) {
-        if (mContext == null) {
+        if (context == null) {
             throw new NullPointerException("context can't be null!");
         }
         mContext = context;
@@ -58,7 +58,7 @@ public class MsgReceiver {
     private BroadcastReceiver mReceiverClient = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            LogUtil.logd("onReceive:" + intent.getAction());
+            LogUtil.logi("onReceive:" + intent.getAction());
             if (UdpConfiger.ACTION_CLIENT_INIT.equals(intent.getAction())) {
                 if (mPort > 0) {
                     broadcastPortInfo(UdpConfiger.HOST_SERVER, mPort);
@@ -69,6 +69,7 @@ public class MsgReceiver {
 
 
     private void broadcastPortInfo(String hostName, int port) {
+        LogUtil.logi("broadcastPortInfo hostName:" + hostName + ",port:" + port);
         Intent intent = new Intent();
         intent.setAction(UdpConfiger.ACTION_HOST_PORT);
         intent.putExtra(UdpConfiger.EXTRA_PORT_INFO, "server = " + hostName + ":" + port);

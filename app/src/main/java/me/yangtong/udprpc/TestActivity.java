@@ -39,11 +39,11 @@ public class TestActivity extends Activity {
     }
 
     private void initClient() {
-        MsgSender.getInstance().init(this);
+        MsgSender.getInstance().init(this.getApplicationContext());
     }
 
     private void initServer() {
-        MsgReceiver.getInstance().init(mTestCmdDispatcher);
+        MsgReceiver.getInstance().init(this.getApplicationContext(),mTestCmdDispatcher);
     }
 
     UdpServer.ICmdDispatcher mTestCmdDispatcher = new UdpServer.ICmdDispatcher() {

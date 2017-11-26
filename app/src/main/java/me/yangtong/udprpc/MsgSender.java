@@ -81,7 +81,7 @@ public class MsgSender {
 		public void onReceive(Context context, Intent intent) {
 			if (UdpConfiger.ACTION_HOST_PORT.equals(intent.getAction())) {
 				String info = intent.getStringExtra(UdpConfiger.EXTRA_PORT_INFO);
-				LogUtil.logd("receive port info :" + info);
+				LogUtil.logi("receive port info :" + info);
 				if (TextUtils.isEmpty(info)) {
 					return;
 				}

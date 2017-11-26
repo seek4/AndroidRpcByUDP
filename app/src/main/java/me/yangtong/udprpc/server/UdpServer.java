@@ -8,6 +8,7 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
+import me.yangtong.udprpc.MsgReceiver;
 import me.yangtong.udprpc.base.UdpConfiger;
 import me.yangtong.udprpc.base.UdpDataFactory;
 import me.yangtong.udprpc.util.LogUtil;
@@ -55,6 +56,24 @@ public class UdpServer {
 		LogUtil.logd(TAG + "setCmdDispatcher:" + d);
 		mCmdDispatcher = d;
 	}
+
+	ICmdDispatcher mInnerCmdDispatcher = new ICmdDispatcher() {
+        @Override
+        public UdpDataFactory.UdpData onInvoke(UdpDataFactory.UdpData udpData) {
+            LogUtil.logi("mInnerCmdDispatcher onInvoke:" + udpData.cmd);
+            switch (udpData.cmd) {
+                case UdpDataFactory.UdpData.CMD_CHECK_CONNECTION:
+                    byte[] data = null;
+                    if (udpData.data != null) {
+                        String processName = new String(udpData.data);
+                        data = MsgReceiver.getInstance().getInitData(processName);
+                    }
+                    return new UdpDataFactory.UdpData(1, UdpDataFactory.UdpData.INVOKE_ASYNC,
+                            UdpDataFactory.UdpData.CMD_RESP_CONNECTION, data);
+            }
+            return null;
+        }
+    };
 	
     public int start() {
         try {
@@ -97,19 +116,23 @@ public class UdpServer {
                             mServerSocket.receive(mDatagramPacket);
                             byte[] transferData = mDatagramPacket.getData();
                             if (transferData != null && transferData.length > UdpConfiger.getInstance().getReserveDataLength()) {
-								UdpDataFactory.UdpData udpData = UdpDataFactory.getUdpData(transferData);
-                                if (mCmdDispatcher == null) {
-									continue;
-								}
-								if (udpData.invokeType == UdpDataFactory.UdpData.INVOKE_SYNC) {
+                                UdpDataFactory.UdpData udpData = UdpDataFactory.getUdpData(transferData);
+                                UdpDataFactory.UdpData response;
+                                if(udpData.cmd == UdpDataFactory.UdpData.CMD_CHECK_CONNECTION) {
+                                    response = mInnerCmdDispatcher.onInvoke(udpData);
+                                } else if (mCmdDispatcher != null) {
+                                    response = mCmdDispatcher.onInvoke(udpData);
+                                } else {
+                                    continue;
+                                }
+                                if (udpData.invokeType == UdpDataFactory.UdpData.INVOKE_SYNC) {
 									InetAddress clientAddr = mDatagramPacket.getAddress();
-									UdpDataFactory.UdpData response = mCmdDispatcher.onInvoke(udpData);
 									byte[] dataResp = UdpDataFactory.getTransferData(response);
 									mServerSocket.send(new DatagramPacket(dataResp, dataResp.length, clientAddr,
 											mDatagramPacket.getPort()));
-								} else {
-									mCmdDispatcher.onInvoke(udpData);
 								}
+                            } else {
+                                continue;
                             }
                         } catch (IOException e) {
                             e.printStackTrace();

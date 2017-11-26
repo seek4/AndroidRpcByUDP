@@ -174,44 +174,47 @@ public class UdpDataFactory {
      * @return
      */
     public static UdpData getUdpData(byte[] transferData){
-        if (transferData.length < UdpConfiger.getInstance().getReserveDataLength()) {
-            throw new RuntimeException("transfer data can't be shorter than reserve length!");
-        }
+		if (transferData.length < UdpConfiger.getInstance().getReserveDataLength()) {
+			throw new RuntimeException("transfer data can't be shorter than reserve length!");
+		}
 		LogUtil.logd("receive:");
 		printBytes(transferData);
-        UdpData udpData = new UdpData();
-        udpData.udpId = transferData[0];
-        udpData.invokeType = transferData[1] == 0 ? UdpData.INVOKE_ASYNC : UdpData.INVOKE_SYNC;
-        byte[] cmdBytes = new byte[4];
-        cmdBytes[0] = transferData[2];
-        cmdBytes[1] = transferData[3];
-        cmdBytes[2] = transferData[4];
-        cmdBytes[3] = transferData[5];
-        udpData.cmd = byteArrayToInt(cmdBytes);
+		UdpData udpData = new UdpData();
+		udpData.udpId = transferData[0];
+		udpData.invokeType = transferData[1] == 0 ? UdpData.INVOKE_ASYNC : UdpData.INVOKE_SYNC;
+		byte[] cmdBytes = new byte[4];
+		cmdBytes[0] = transferData[2];
+		cmdBytes[1] = transferData[3];
+		cmdBytes[2] = transferData[4];
+		cmdBytes[3] = transferData[5];
+		udpData.cmd = byteArrayToInt(cmdBytes);
 		byte[] lengthBytes = new byte[4];
 		lengthBytes[0] = transferData[6];
 		lengthBytes[1] = transferData[7];
 		lengthBytes[2] = transferData[8];
 		lengthBytes[3] = transferData[9];
 		udpData.length = byteArrayToInt(lengthBytes);
-        byte[] bytes = new byte[udpData.length];
-        for (int i = 0; i < bytes.length; i++) {
-            bytes[i] = transferData[UdpConfiger.getInstance().getReserveDataLength() + i];
-        }
-        udpData.data = bytes;
+		byte[] bytes = new byte[udpData.length];
+		for (int i = 0; i < bytes.length; i++) {
+			bytes[i] = transferData[UdpConfiger.getInstance().getReserveDataLength() + i];
+		}
+		udpData.data = bytes;
         return udpData;
     }
 
-    private static void printBytes(byte[] bytes){
-		if(bytes==null||bytes.length==0){
-			LogUtil.logd("bytes null");
-			return;
-		}
-		String byteStr="";
-		for (int i = 0; i < bytes.length; i++) {
-			byteStr += "" + bytes[i];
-		}
-		LogUtil.logd("bytes:"+byteStr);
+    public static void printBytes(byte[] bytes){
+//		if (bytes == null || bytes.length == 0) {
+//			LogUtil.logi("bytes null");
+//			return;
+//		}
+//		LogUtil.logi("111111111111111111");
+//		String byteStr="";
+//		for (int i = 0; i < bytes.length; i++) {
+//			byteStr += "" + bytes[i];
+//		}
+//		LogUtil.logi("22222222222222222222222");
+//		LogUtil.logi("bytes:"+byteStr);
+		return;
 	}
 
 	private static int byteArrayToInt(byte[] b) {
