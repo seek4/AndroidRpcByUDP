@@ -7,6 +7,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 
 import me.yangtong.udprpc.MsgReceiver;
 import me.yangtong.udprpc.base.UdpConfiger;
@@ -115,12 +116,15 @@ public class UdpServer {
                             mDatagramPacket = new DatagramPacket(receiveData,receiveData.length);
                             mServerSocket.receive(mDatagramPacket);
                             byte[] transferData = mDatagramPacket.getData();
+
                             if (transferData != null && transferData.length > UdpConfiger.getInstance().getReserveDataLength()) {
                                 UdpDataFactory.UdpData udpData = UdpDataFactory.getUdpData(transferData);
                                 UdpDataFactory.UdpData response;
                                 if(udpData.cmd == UdpDataFactory.UdpData.CMD_CHECK_CONNECTION) {
                                     response = mInnerCmdDispatcher.onInvoke(udpData);
                                 } else if (mCmdDispatcher != null) {
+//                                    LogUtil.logi("receive :" + Arrays.toString(transferData));
+//                                    LogUtil.logi("cmd:" + udpData.cmd + ",data" + Arrays.toString(udpData.data));
                                     response = mCmdDispatcher.onInvoke(udpData);
                                 } else {
                                     continue;

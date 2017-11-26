@@ -6,6 +6,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 
 import me.yangtong.udprpc.base.UdpConfiger;
 import me.yangtong.udprpc.base.UdpDataFactory;
@@ -47,11 +48,14 @@ public class UdpClient {
 
 	public UdpDataFactory.UdpData sendInvoke(UdpDataFactory.UdpData udpData, UdpConfiger.UdpAddress targetAddr) {
 		if (udpData.invokeType == UdpDataFactory.UdpData.INVOKE_SYNC) {
-			return sendInvokeSync(UdpDataFactory.getTransferData(udpData), targetAddr);
-		} else {
-			return sendInvoke(UdpDataFactory.getTransferData(udpData), targetAddr);
-		}
-	}
+            return sendInvokeSync(UdpDataFactory.getTransferData(udpData), targetAddr);
+        } else {
+            byte[] bytes = UdpDataFactory.getTransferData(udpData);
+//            LogUtil.logi("send:" + Arrays.toString(bytes));
+//            LogUtil.logi("cmd:" + udpData.cmd + ",data" + Arrays.toString(udpData.data));
+            return sendInvoke(bytes, targetAddr);
+        }
+    }
     
 
     public UdpDataFactory.UdpData sendInvokeSync(byte[] transferData, UdpConfiger.UdpAddress targetAddr) {

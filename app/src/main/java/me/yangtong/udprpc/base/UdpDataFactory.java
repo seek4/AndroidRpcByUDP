@@ -1,5 +1,7 @@
 package me.yangtong.udprpc.base;
 
+import java.util.Arrays;
+
 import me.yangtong.udprpc.util.LogUtil;
 
 /**
@@ -162,8 +164,6 @@ public class UdpDataFactory {
 		for (int i = 0; i < originalData.length && i < UdpConfiger.getInstance().getUserDataLength(); i++) {
 			bytes[UdpConfiger.getInstance().getReserveDataLength() + i] = originalData[i];
 		}
-		LogUtil.logd("send:");
-		printBytes(bytes);
 		return bytes;
     }
 
@@ -177,7 +177,6 @@ public class UdpDataFactory {
 		if (transferData.length < UdpConfiger.getInstance().getReserveDataLength()) {
 			throw new RuntimeException("transfer data can't be shorter than reserve length!");
 		}
-		LogUtil.logd("receive:");
 		printBytes(transferData);
 		UdpData udpData = new UdpData();
 		udpData.udpId = transferData[0];

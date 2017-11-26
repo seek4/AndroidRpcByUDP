@@ -63,7 +63,7 @@ public class TestActivity extends Activity {
                         @Override
                         public void run() {
                             if (udpData.data != null && udpData.length > 0) {
-                                mTvReceive.setText(udpData.data.toString());
+                                mTvReceive.setText(new String(udpData.data));
                             }
                         }
                     });
