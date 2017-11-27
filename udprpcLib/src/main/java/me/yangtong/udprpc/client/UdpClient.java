@@ -30,8 +30,10 @@ public class UdpClient {
                 try {
                     mSocketClient = new DatagramSocket(mPort);
                     mSocketClient.setSoTimeout(UdpConfiger.TIME_OUT_CLIENT_RECV);
+                    // 实际这里的buffer只有320k，之所以设置1024k是为了确保缓冲区最大
+                    // 缓冲区会影响到udp传输的丢包率
                     mSocketClient.setSendBufferSize(1024 * 1024);
-                    LogUtil.logd(TAG + " sendBuffer:" + mSocketClient.getSendBufferSize());
+                    LogUtil.logi(TAG + " sendBuffer:" + mSocketClient.getSendBufferSize());
                     return mPort;
                 } catch (SocketException e) {
                     e.printStackTrace();

@@ -1,9 +1,5 @@
 package me.yangtong.udprpc.base;
 
-import java.util.Arrays;
-
-import me.yangtong.udprpc.util.LogUtil;
-
 /**
  * 数据封装及解封装类
  * 
