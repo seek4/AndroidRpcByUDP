@@ -132,9 +132,9 @@ public class UdpDataFactory {
      * 根据原始数据构造出需传输的数据，跟{@link #getUdpData(byte[])} 相对应
      *
      * @param invokeType
-     *             调用类型,同步还是异步 {@link #INVOKE_SYNC} {@link #INVOKE_ASYNC}
+     *             调用类型,同步还是异步 {@link UdpData#INVOKE_SYNC} {@link UdpData#INVOKE_ASYNC}
      * @param cmd
-     *              对方执行哪个方法 打日志{@link #CMD_LOG} 上报数据{@link #CMD_REPORT}
+     *              对方执行哪个方法 {@link UdpData#CMD_TEST}
      * @param originalData
      *              原始数据
      * @return
@@ -165,7 +165,7 @@ public class UdpDataFactory {
 
 
     /**
-     * 从传输数据解析出原始数据，跟{@link #getTransferData(int, int, byte[])}相对应
+     * 从传输数据解析出原始数据，跟{@link #getTransferData(UdpData)}相对应
      * @param transferData
      * @return
      */
