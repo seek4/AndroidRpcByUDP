@@ -46,6 +46,6 @@ You can read the TestActivity to learn the useage.
 
 ### Contact Me
 If you have any other questions,connect me:
-[Mailto:haoyunyangtong@qq.com](Mailto:haoyunyangtong@qq.com "haoyunyangtong@qq.com")
+[haoyunyangtong@qq.com](Mailto:haoyunyangtong@qq.com "haoyunyangtong@qq.com")
 
 
