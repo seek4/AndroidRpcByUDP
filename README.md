@@ -11,17 +11,20 @@ One serve can have mutil-clients.
 - In normal use stituation,will extremely rare lose data or in worng order(near nerver).
  
 ### Useage
-1. Add the udprpcLib src file to your project,or download that module and add it to your project.
+1. Add the udprpcLib src file to your project,or download that module and add it to your project.<br><br>
 2. Initialize Server and Client.<br> 
   In the server process,use ServerManager.getInstance().init(context,cmdDispatcher) to initialize your udp server.<br>
  In the client process,use ClientManager.getInstance().init(context,serverProcessName) to initialize your udp client.<br>
-Ps:suggest do initialize work when application onCreate and use application context.
-3. Now you can send your data from client process and receive it in server process.<br>
+Ps:suggest do initialize work when application onCreate and use application context.<br><br>
+3. Now you can send your data from client process and receive it in server process.<br><br>
  For example:<br>
-The client send async invoke<br>
-` ClientManager.getInstance().sendInvoke(UdpDataFactory.UdpData.CMD_TEST, "testData".getBytes());`<br>
+The client send async invoke
+```
+ClientManager.getInstance().sendInvoke(UdpDataFactory.UdpData.CMD_TEST, "testData".getBytes());
+```
 The server receive and handle the receive data<br> 
-    `    UdpServer.ICmdDispatcher mTestCmdDispatcher = new UdpServer.ICmdDispatcher() {
+```
+ UdpServer.ICmdDispatcher mTestCmdDispatcher = new UdpServer.ICmdDispatcher() {
         @Override
         public UdpDataFactory.UdpData onInvoke(UdpDataFactory.UdpData udpData) {
             switch (udpData.cmd){
@@ -38,7 +41,8 @@ The server receive and handle the receive data<br>
             }
             return null;
         }
-    };` <br>
+    };
+```
 the mTestCmdDispatcher is appointed when server initialize.
 
 <br>
