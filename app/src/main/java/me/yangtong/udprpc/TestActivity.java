@@ -33,31 +33,23 @@ public class TestActivity extends Activity {
         mBtnSend.setOnClickListener((View view) -> {
             String msgSend = "" + mEditMsg.getText();
             if (!TextUtils.isEmpty(msgSend)) {
-                MsgSender.getInstance().sendInvoke(UdpDataFactory.UdpData.CMD_TEST, msgSend.getBytes());
+                ClientManager.getInstance().sendInvoke(UdpDataFactory.UdpData.CMD_TEST, msgSend.getBytes());
             }
         });
     }
 
     private void initClient() {
-        MsgSender.getInstance().init(this.getApplicationContext());
+        ClientManager.getInstance().init(this.getApplicationContext(),"me.yangtong.udprpc");
     }
 
     private void initServer() {
-        MsgReceiver.getInstance().init(this.getApplicationContext(),mTestCmdDispatcher);
+        ServerManager.getInstance().init(this.getApplicationContext(),mTestCmdDispatcher);
     }
 
     UdpServer.ICmdDispatcher mTestCmdDispatcher = new UdpServer.ICmdDispatcher() {
         @Override
         public UdpDataFactory.UdpData onInvoke(UdpDataFactory.UdpData udpData) {
             switch (udpData.cmd){
-                case UdpDataFactory.UdpData.CMD_CHECK_CONNECTION:
-                    byte[] data = null;
-                    if (udpData.data != null) {
-                        String processName = new String(udpData.data);
-                        data = MsgReceiver.getInstance().getInitData(processName);
-                    }
-                    return new UdpDataFactory.UdpData(1, UdpDataFactory.UdpData.INVOKE_ASYNC,
-                            UdpDataFactory.UdpData.CMD_RESP_CONNECTION, data);
                 case UdpDataFactory.UdpData.CMD_TEST:
                     mTvReceive.post(new Runnable1<byte[]>(udpData.data) {
                         @Override

@@ -7,9 +7,8 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.Arrays;
 
-import me.yangtong.udprpc.MsgReceiver;
+import me.yangtong.udprpc.ServerManager;
 import me.yangtong.udprpc.base.UdpConfiger;
 import me.yangtong.udprpc.base.UdpDataFactory;
 import me.yangtong.udprpc.util.LogUtil;
@@ -67,7 +66,7 @@ public class UdpServer {
                     byte[] data = null;
                     if (udpData.data != null) {
                         String processName = new String(udpData.data);
-                        data = MsgReceiver.getInstance().getInitData(processName);
+                        data = ServerManager.getInstance().getInitData(processName);
                     }
                     return new UdpDataFactory.UdpData(1, UdpDataFactory.UdpData.INVOKE_ASYNC,
                             UdpDataFactory.UdpData.CMD_RESP_CONNECTION, data);

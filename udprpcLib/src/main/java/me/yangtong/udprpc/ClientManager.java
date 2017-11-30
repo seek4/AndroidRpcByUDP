@@ -1,7 +1,5 @@
 package me.yangtong.udprpc;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,24 +20,24 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.text.TextUtils;
 import android.util.Log;
 
 /**
- * UdpRpc的访问入口类及连接等的管理类
+ *	manage the client and send invoke to target server,
+ *  should run in the client process.
  * @author Terry
  *
  */
-public class MsgSender {
+public class ClientManager {
 
-	private MsgSender(){}
+	private ClientManager(){}
 	
-	private static MsgSender sInstance = new MsgSender();
+	private static ClientManager sInstance = new ClientManager();
 	
-	public static MsgSender getInstance(){
+	public static ClientManager getInstance(){
 		return sInstance;
 	}
 	
@@ -52,14 +50,31 @@ public class MsgSender {
 	private Handler mHandlerSendInvoke;
 	private static final int INTERVAL_CHECK = 5000;
 	private UdpAddress mServerAddr;
-	private static final String TAG = "MsgSender ";
+	private static final String TAG = "ClientManager ";
 	private String mProcessName = "";
+	private String mSeverProcessName = null;
+
+//	/**
+//	 * init client
+//	 *
+//	 * @param context use application to avoid memory leak
+//	 */
+//	public void init(Context context) {
+//		init(context,null);
+//	}
 
 	/**
-	 *
+	 * init client with specific server,advise use this method
 	 * @param context use application to avoid memory leak
+	 * @param serverProcessName 	server process name
 	 */
-	public void init(Context context) {
+	public void init(Context context, String serverProcessName) {
+		if (context == null) {
+			throw new NullPointerException("context can't be null!");
+		}
+		if (serverProcessName == null) {
+			throw new NullPointerException("server process name can't be null!");
+		}
 		mProcessName = CommUtil.getProcessName(context);
 		mThreadCheck = new HandlerThread("udpCheckConnection");
 		mThreadCheck.start();
@@ -68,6 +83,7 @@ public class MsgSender {
 		mThreadSendInvoke = new HandlerThread("udpProcess");
 		mThreadSendInvoke.start();
 		mHandlerSendInvoke = new Handler(mThreadSendInvoke.getLooper());
+		mSeverProcessName = serverProcessName;
 		IntentFilter intentFilter = new IntentFilter(UdpConfiger.ACTION_HOST_PORT);
 		context.registerReceiver(mServerReceiver,intentFilter);
 		context.sendBroadcast(new Intent(UdpConfiger.ACTION_CLIENT_INIT));
@@ -80,6 +96,7 @@ public class MsgSender {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			if (UdpConfiger.ACTION_HOST_PORT.equals(intent.getAction())) {
+				// data format: processName = hostName:port
 				String info = intent.getStringExtra(UdpConfiger.EXTRA_PORT_INFO);
 				LogUtil.logi("receive port info :" + info);
 				if (TextUtils.isEmpty(info)) {
@@ -87,6 +104,10 @@ public class MsgSender {
 				}
 				String[] tmp1 = info.split("=");
 				if (tmp1.length != 2) {
+					return;
+				}
+				if (mSeverProcessName != null && !mSeverProcessName.equals(tmp1[0].trim())) {
+					LogUtil.logw("process name not fit, return.");
 					return;
 				}
 				String[] tmp2 = tmp1[1].split(":");
