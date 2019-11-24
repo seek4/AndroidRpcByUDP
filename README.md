@@ -7,7 +7,7 @@ One serve can have mutil-clients.
 - Both support synchronous and asynchronous invoke. 
 - Very minor performance cost.
 - Aginst AIDL:1.more easy to use;2.more efficient,less performance cost;
-- Aginst Broadcast:1.support sunchronous invoke;2.more efficient,less performance cost;
+- Aginst Broadcast:1.support synchronous invoke;2.more efficient,less performance cost;
 - In normal use stituation,will extremely rare lose data or in worng order(near nerver).
  
 ### Useage
